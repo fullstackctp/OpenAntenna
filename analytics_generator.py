@@ -11,7 +11,7 @@ from sqlalchemy import text
 app = Flask(__name__)
 # Create connection to the database
 engine = create_engine(
-    "mysql://user:1234@localhost:3306/openantenna")        # substitue the 'user:1234@localhost:3306/openantenna' with <username>:<password>@<host>:<port>/<DB_name>
+    "mysql://deependra:1234@localhost:3306/openantenna")        # substitue the 'user:1234@localhost:3306/openantenna' with <username>:<password>@<host>:<port>/<DB_name>
 
 meta = MetaData(bind=engine)
 MetaData.reflect(meta)

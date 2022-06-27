@@ -1,3 +1,5 @@
+from email.policy import default
+from lib2to3.pgen2.token import TILDE
 from flask import Flask, session, request, redirect, url_for, render_template
 import MySQLdb
 from flask_sqlalchemy import SQLAlchemy
@@ -8,14 +10,28 @@ from sqlalchemy.engine import result
 from sqlalchemy import text, Column, create_engine, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
+import datetime
+import os
+import hashlib
+
 Base=declarative_base()
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
+
 
 # Database Connection
+ 
+
+# app.config['UPLOAD_FOLDER_1']="/home/ctp/Desktop/webfactory/OpenAntenna/static/media/audio"
+# app.config['UPLOAD_FOLDER_2']="/home/ctp/Desktop/webfactory/OpenAntenna/static/media/video"
+# app.config['UPLOAD_FOLDER_3']="/home/ctp/Desktop/webfactory/OpenAntenna/static/media/others"
+
+path="/home/ctp/Desktop/webfactory/OpenAntenna/static/media"
+
 
 engine = create_engine(
-    "mysql://user:1234@localhost:3306/openantenna")     # substitue the 'user:1234@localhost:3306/openantenna' with <username>:<password>@<host>:<port>/<DB_name>
+    "mysql://deependra:1234@localhost:3306/myfactory")     # substitue the 'user:1234@localhost:3306/openantenna' with <username>:<password>@<host>:<port>/<DB_name>
 
 # initialize the Metadata Object
 meta = MetaData(bind=engine)
@@ -144,20 +160,36 @@ class users(Base):
     __tablename__="users"
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
-    picture = db.Column(db.String(1000), nullable=False)
+    picture = db.Column(db.String(1000), nullable=True)
     email = db.Column(db.String(1000),nullable=False)
     phone = db.Column(db.String(30),nullable=False)
-    password = db.Column(db.String(30),nullable=False)
+    password = db.Column(db.String(100),nullable=False)
     date_registered =  db.Column(db.DateTime(timezone=True),
-                           server_default=func.now(),nullable=False)
+                           default=datetime.datetime.now(),nullable=False)
     last_login = db.Column(db.DateTime(timezone=True),
-                           server_default=func.now(),nullable=False)
+                           default=datetime.datetime.now(),nullable=False)
     user_type = db.Column(db.String(10),nullable=False)
     status = db.Column(db.String(10),nullable=False)
      
 
     def __str__(self):
         return f'<users {self.id}>'
+
+
+
+class blog_post_data(Base):
+    __tablename__="blog_post_data"
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    user_name = db.Column(db.String(300), nullable=False)
+    title = db.Column(db.String(300), nullable=False)
+    description = db.Column(db.String(300), nullable=False)
+    type = db.Column(db.String(300), nullable=False)
+    file = db.Column(db.String(300),nullable=False)
+    
+    def __str__(self):
+        return f'<blog_post_data {self.id}>'
+
+
 
 
 Base.metadata.create_all(engine)
@@ -177,6 +209,7 @@ def home():
     sql = text("SELECT * FROM donation_methods WHERE active = 1;")
     donation_methods_data=engine.execute(sql).fetchall()
     return(render_template('index.html', settings_data=settings_data, posts_data=posts_data, donation_methods_data=donation_methods_data))
+
 
 @app.route("/posts/")
 def posts():
@@ -273,13 +306,117 @@ def admin():
         return(render_template('admin.html', settings_data=settings_data,post_data=post_data))
     return("Please <a href='/login'>Log In</a> For Access")
 
-@app.route("/admin/edit-upload")
+
+@app.route("/admin/edit-upload",methods=['GET','POST'])
 def admin_edit_upload():
     # Get settings data
     sql = text("SELECT * FROM settings;")
     settings_data=engine.execute(sql).fetchone()  
     if 'username' in session: 
         # Automatically create length and title_slug for db
+        if request.method == 'POST':
+            title = request.form.get('title')
+            description = request.form.get('description')
+            types = request.form.get('type')
+            files = request.form.get('file')
+            username = session['username']
+
+            file_name= str(request.files.get('file'))
+
+            file_ending= file_name.split("'")[1][-4:]
+            
+            if types == 'Podcast Episode'  and file_ending == '.mp3':
+
+                media=request.files.get('file')
+
+                if os.path.isdir(path + '/' + 'audio'): 
+                    
+                    print(' exists.')
+                else:
+                    os.mkdir(path + '/' + 'audio')    
+                    print( ' created.')
+                media.save(os.path.join(f'{path}/audio/', media.filename))
+
+                data = ( { 'user_name':username,
+                "title": title,
+                "description": description,
+                'type':'audio',
+                    "file":media.filename},
+                )
+                statement = text("""
+                INSERT INTO blog_post_data (user_name,title, description,
+                type,file) VALUES(:user_name, :title, :description,
+                :type,:file)
+                """)
+
+                for line in data:
+                    engine.execute(statement, **line)
+
+                print("Image saved in .mp3 formate")
+
+
+            elif types == "Video Post"  and file_ending == '.mp4':
+                
+                media=request.files['file']
+                if os.path.isdir(path + '/' + 'video'): 
+                    
+                    print(' exists.')
+                else:
+                    os.mkdir(path + '/' + 'video')    
+                    print( ' created.')
+                media.save(os.path.join(f'{path}/video/', media.filename))
+
+                data = ( { 'user_name':username,
+                "title": title,
+                "description": description,
+                'type':'video',
+                    "file":media.filename},
+                )
+                statement = text("""
+                INSERT INTO blog_post_data (user_name,title, description,
+                type,file) VALUES(:user_name, :title, :description,
+                :type,:file)
+                """)
+
+                for line in data:
+                    engine.execute(statement, **line)
+                print("Image saved in .mp4 formate")
+                 
+
+            elif types == "Blog Post" and file_ending != '.mp3' and file_ending != '.mp4' :
+                media=request.files['file']
+
+                if os.path.isdir(path + '/' + 'others'): 
+                    
+                    print(' exists.')
+                else:
+                    os.mkdir(path + '/' + 'others')    
+                    print( ' created.')
+
+                media.save(os.path.join(f'{path}/others/', media.filename))
+                
+                data = ( { 'user_name':username,
+                "title": title,
+                "description": description,
+                'type':'others',
+                    "file":media.filename},
+                )
+                statement = text("""
+                INSERT INTO blog_post_data (user_name,title, description,
+                type,file) VALUES(:user_name, :title, :description,
+                :type,:file)
+                """)
+
+                for line in data:
+                    engine.execute(statement, **line)
+
+                print("Image saved in other formate")
+
+
+            else:
+                print("please select valid formate")
+
+
         return(render_template('admin-edit-upload.html', settings_data=settings_data))
     return("Please <a href='/login'>Log In</a> For Access")
 
@@ -328,11 +465,13 @@ def admin_settings():
 def login():
     # Get settings data
     sql = text("SELECT * FROM settings;")
-    settings_data=engine.execute(sql).fetchone() 
+    engine.execute(sql).fetchone() 
     if request.method == 'POST':
         # # Get potential user data
         email = request.form['email']
-        password = request.form['password']
+        password1 = request.form['password']
+        password2 = hashlib.md5(password1.encode())
+        password = password2.hexdigest()
 
         sql = text("SELECT * FROM users WHERE email = '{}' AND password = '{}';".format(email,password))
         user_data=engine.execute(sql).fetchone() 
@@ -342,26 +481,68 @@ def login():
             session['username'] = user_data[1]
             session['email'] = user_data[3]
             return(redirect(url_for('admin')))
-        return()
 
-    return('''
-        <form method="post">
-            <p><input type=text name=email>
-            <p><input type=text name=password>
-            <p><input type=submit value=Login>
-        </form>
-        ''')
+    return(render_template('login.html'))
+
+
+@app.route('/logout')
+def logout():
+    hii= session.pop('username',None)
+    return redirect('/')
+
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     # Get settings data
     sql = text("SELECT * FROM settings;")
-    settings_data=engine.execute(sql).fetchone() 
-    return('coming soon')
+    engine.execute(sql).fetchone() 
+    sql = text("SELECT * FROM users;")
+    
+    if request.method == 'POST':
+        # # Get potential user data
+        firstName = request.form['firstName']
+        status = request.form['status']
+        phoneNo = request.form['phoneNo']
+        email = request.form['email']
+        user_type = request.form['user_type']
+        password1 = request.form['password']
+        password2 = hashlib.md5(password1.encode())
+        password = password2.hexdigest()
+
+        mails = engine.execute(sql).fetchall() 
+        store=[]
+        for i in mails:
+            store.append(i[3])
+
+
+        if email not in store:
+
+            data = ( { "firstName": firstName,
+            "status": status,
+            "phoneNo": phoneNo,
+                "email": email,
+                "password": password,
+                "user_type": user_type,
+                "picture":"New_Image.jpg"},
+            )
+            statement = text("""
+            INSERT INTO users (name, picture, email,
+            status,phone,password,user_type) VALUES(:firstName, :picture, :email,
+            :status,:phoneNo,:password,:user_type)
+            """)
+
+            for line in data:
+                engine.execute(statement, **line)
+
+            return redirect(url_for('home'))
+        else:
+            print("Please try with other email")
+    return(render_template('signup.html'))
 
 if __name__ == "__main__":
     
-     
+    app.secret_key = os.urandom(24)
     app.run(debug = True)
 
 

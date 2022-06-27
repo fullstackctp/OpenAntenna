@@ -1,36 +1,225 @@
-{% extends 'base.html' %}
-{% block title %}Edit / Upload Page{% endblock %}
+{% extends 'base.html' %} {% block title %}Settings Page{% endblock %} {% block
+body %}
 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      /* General Styles */
+      html {
+        background: url(https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg?auto=compress&cs=tinysrgb&h=500&w=1260)
+          no-repeat;
+        background-size: 100vh;
 
-{% block body %}
+        background-color: #000;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+        -moz-font-smoothing: antialiased;
+        -o-font-smoothing: antialiased;
+        font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      body {
+        color: #c0c0c0;
+        font-family: Arial, san-serif;
+      }
 
-<div class="row" style="padding-bottom: 20px; padding-top: 20px;">
-	<center>
-		<h2>Edit / Upload</h2>
-	</center>
+      /* Contact Form Styles */
+      h1 {
+        margin: 10px 0 0 0;
+      }
+      h4 {
+        margin: 0 0 20px 0;
+      }
+      #contact-form {
+        background-color: rgba(72, 72, 72, 0.9);
+        padding: 10px 20px 30px 20px;
+        max-width: 100%;
+        float: left;
+        left: 50%;
+        position: absolute;
+        margin-top: 30px;
+        margin-left: -260px;
+        border-radius: 7px;
+        -webkit-border-radius: 7px;
+        -moz-border-radius: 7px;
+      }
+      #contact-form input,
+      #contact-form select,
+      #contact-form textarea,
+      #contact-form label {
+        font-size: 15px;
+        margin-bottom: 2px;
+        font-family: Arial, san-serif;
+      }
+      #contact-form input,
+      #contact-form select,
+      #contact-form textarea {
+        width: 100%;
+        background: #fff;
+        border: 0;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
+        margin-bottom: 25px;
+        padding: 5px;
+      }
+      #contact-form input:focus,
+      #contact-form select:focus,
+      #contact-form textarea:focus {
+        background-color: #e5e6e7;
+      }
+      #contact-form textarea {
+        width: 100%;
+        height: 150px;
+      }
+      #contact-form button[type="submit"] {
+        cursor: pointer;
+        width: 100%;
+        border: none;
+        background: #991d57;
+        background-image: linear-gradient(bottom, #8c1c50 0%, #991d57 52%);
+        background-image: -moz-linear-gradient(bottom, #8c1c50 0%, #991d57 52%);
+        background-image: -webkit-linear-gradient(
+          bottom,
+          #8c1c50 0%,
+          #991d57 52%
+        );
+        color: #fff;
+        margin: 0 0 5px;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      #contact-form button[type="submit"]:hover {
+        background-image: linear-gradient(bottom, #9c215a 0%, #a82767 52%);
+        background-image: -moz-linear-gradient(bottom, #9c215a 0%, #a82767 52%);
+        background-image: -webkit-linear-gradient(
+          bottom,
+          #9c215a 0%,
+          #a82767 52%
+        );
+        -webkit-transition: background 0.3s ease-in-out;
+        -moz-transition: background 0.3s ease-in-out;
+        transition: background-color 0.3s ease-in-out;
+      }
+      #contact-form button[type="submit"]:active {
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+      }
+      input:required,
+      textarea:required {
+        box-shadow: none;
+        -moz-box-shadow: none;
+        -webkit-box-shadow: none;
+        -o-box-shadow: none;
+      }
+      #contact-form .required {
+        font-weight: bold;
+        color: #e5e6e7;
+      }
 
+      /* Hide success/failure message
+      (especially since the php is missing) */
+      #failure,
+      #success {
+        color: #6ea070;
+        display: none;
+      }
 
-	<select class="form-select" aria-label="Default select example">
-		<option selected>Open this select menu</option>
-		<option value="1">One</option>
-		<option value="2">Two</option>
-		<option value="3">Three</option>
-	</select>
+      /* Make form look nice on smaller screens */
+      @media only screen and (max-width: 580px) {
+        #contact-form {
+          left: 3%;
+          margin-right: 3%;
+          width: 88%;
+          margin-left: 0;
+          padding-left: 3%;
+          padding-right: 3%;
+        }
+      }
+    </style>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="contact-form">
+      <div>
+        <h1>Welcome</h1>
+      </div>
+      <p id="failure">Oopsie...message not sent.</p>
+      <p id="success">Your message was sent successfully. Thank you!</p>
 
-	<div class="input-group mb-3">
-		<input type="text" class="form-control" placeholder="Title" aria-label="Title" aria-describedby="title">
-	</div>
+      <form method="POST" enctype="multipart/form-data">
+        <div>
+          <label for="subject">
+            <span>POST TYPE </span>
+            <select
+              name="type"
+              class="form-select"
+              aria-label="Default select example"
+            >
+              <option value="Podcast Episode">Podcast Episode</option>
+              <option value="Video Post">Video Post</option>
+              <option value="Blog Post">Blog Post</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label for="title">
+            <span class="required">Title: *</span>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value=""
+              placeholder="Your Title"
+              required="required"
+              tabindex="1"
+              autofocus="autofocus"
+            />
+          </label>
+        </div>
+        <div>
+          <label for="description">
+            <span class="required">Description: *</span>
+            <input
+              type="text"
+              id="description"
+              name="description"
+              value=""
+              placeholder="Your Description"
+              required="required"
+              tabindex="1"
+              autofocus="autofocus"
+            />
+          </label>
+        </div>
+        <div>
+          <label for="file">
+            <span class="required">File: *</span>
+            <input
+              type="file"
+              id="file"
+              name="file"
+              value=""
+              placeholder="Your File"
+              tabindex="2"
+              required="required"
+            />
+          </label>
+        </div>
 
-	<div class="input-group mb-3">
-		<input type="text" class="form-control" placeholder="Description" aria-label="Description" aria-describedby="desciption">
-	</div>
-
-	<div class="mb-3">
-		<label for="formFile" class="form-label">Media Upload</label>
-		<input class="form-control" type="file" id="formFile">
-	</div>
-
-</div>
-
+        <div>
+          <button name="submit" type="submit" id="submit">SEND</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
 
 {% endblock %}
