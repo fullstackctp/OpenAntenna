@@ -598,7 +598,7 @@ def admin_settings():
 @app.route('/loginn', methods=['GET', 'POST'])
 def loginn():
 
-    return render_template('vikash.html')
+    return render_template('login_new.html')
 
 
 @app.route('/signupp', methods=['GET', 'POST'])
