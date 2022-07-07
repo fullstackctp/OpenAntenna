@@ -1017,12 +1017,13 @@ def test():
 @app.route('/user' , methods=['GET', 'POST'])
 def user():
 
-    print(session_email,"***********************************getting email after running test function*********************")
 
-    sql = text(
-            "SELECT * FROM users WHERE email = '{}';".format(session_email))
+    sql = text( "SELECT * FROM users WHERE email = '{}';".format(session_email))
 
-    user_data = engine.execute(sql).fetchone()
+    getting_user_data = engine.execute(sql).fetchone()
+ 
+    
+    user_data=getting_user_data[8].lower()
 
     if request.method=="POST":
 
@@ -1030,9 +1031,11 @@ def user():
 
         print(data,'getting data from postman')
 
-        user_type=data['user_type']
+        getting_user_type=data['user_type']
+        user_type=getting_user_type.lower()
 
-        if user_data[8]==user_type=="admin":
+
+        if user_data==user_type=="admin":
 
             return jsonify({'message' : "Authenticated user"})
 
