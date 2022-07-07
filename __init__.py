@@ -1006,21 +1006,21 @@ def setting():
         
     return  redirect('/')
 
-a=''
+session_email=''
 @app.route('/test' )
 def test():  
     if 'username' in session:
-        global a
-        a = session['email']       
-    return a
+        global session_email
+        session_email = session['email']       
+    return session_email
 
 @app.route('/user' , methods=['GET', 'POST'])
 def user():
 
-    print(a,"***********************************getting email after running test function*********************")
+    print(session_email,"***********************************getting email after running test function*********************")
 
     sql = text(
-            "SELECT * FROM users WHERE email = '{}';".format(a))
+            "SELECT * FROM users WHERE email = '{}';".format(session_email))
 
     user_data = engine.execute(sql).fetchone()
 
@@ -1031,8 +1031,6 @@ def user():
         print(data,'getting data from postman')
 
         user_type=data['user_type']
-
-
 
         if user_data[8]==user_type=="admin":
 
