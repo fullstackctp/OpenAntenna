@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Settings Page{% endblock %}
+
+
+{% block body %}
+
+<div class="row" style="padding-bottom: 20px; padding-top: 20px;">
+    <center>
+        <h2>User Data</h2>
+    </center>
+    {% for user in user_data %}
+    <form action="/data" method="POST" enctype="multipart/form-data">
+
+        <p> {{user[5]}} File :
+            <input type = "text" name = "file" value="{{user[6]}}"/> 
+             <!-- <a href="/data" value="{{user[6]}}" name="file" style="text-decoration: none;color: black;">{{user[6]}}</a> -->
+
+            <!-- <a href="javascript:void(0);" onclick="sound('{{item}}')">play</a>
+            <script>
+                function sound(item) {
+                    console.log(item);
+                    //alert("SOUND");
+                    var audio = new Audio('{{user[6]}}');
+                    // reload after audio 
+                    // audio.onended = function () { window.location.href = "/delete/" + item; }
+                    audio.play();
+                }
+            </script> --> 
+
+            <button type="submit" class="btn btn-success"> Preview</button>
+            <!-- <button type="submit" class="btn btn-danger"> Delete</button> -->
+            <a href="/delete/{{user[0]}}" type="button" class="btn btn-danger">Delete</button></a>
+
+        </p>
+
+
+
+        <br>
+        <br>
+
+    </form>
+    {% endfor %}
+
+</div>
+
+
+{% endblock %}

@@ -29,7 +29,17 @@ app.secret_key = "super secret key"
 
 
 # file upload****
-path="/home/ctp/Documents/webfactory/OpenAntenna/static/media"
+path1=os.getcwd()
+
+
+# print(path)
+file_path="static/media"
+
+
+path=os.path.join(path1,file_path)
+
+# print(l,'***********')
+# path="/home/ctp/Documents/webfactory/OpenAntenna/static/media"
 
 
 
@@ -412,7 +422,7 @@ def admin_edit_upload():
     sql = text("SELECT * FROM users ")
     # cursor.execute(sql)
     # analytics_data = cursor.fetchall()
-    settings_data = engine.execute(sql).fetchall()
+    settings_data = engine.execute(sql).fetchone()
 
     if 'username' in session:
 
@@ -427,8 +437,7 @@ def admin_edit_upload():
 
             types = request.form.get('type')
 
-            print(
-                types, '***********************************************************************************')
+            print( types, '***********************************************************************************')
             files = str(request.files.get("file"))
 
             file_ending = files.split("'")[1][-4:]
@@ -438,12 +447,12 @@ def admin_edit_upload():
                 
                 media=request.files.get('file')
 
-                if os.path.isdir(path + '/' + 'Audio'): 
+                if os.path.isdir(path + '/' + 'audio'): 
                     print(' exists.')
                 else:
-                    os.mkdir(path + '/' + 'Audio')    
+                    os.mkdir(path + '/' + 'audio')    
                     print( ' created.')
-                media.save(os.path.join(f'{path}/Audio/', media.filename))                  
+                media.save(os.path.join(f'{path}/audio/', media.filename))                  
                 print("Mp3 saved is audio folder")
 
                 data = ({
@@ -468,12 +477,12 @@ def admin_edit_upload():
                 print("your type is correct ", '.mp4')
                 
                 media=request.files.get('file')
-                if os.path.isdir(path + '/' + 'Video'): 
+                if os.path.isdir(path + '/' + 'video'): 
                     print(' exists.')
                 else:
-                    os.mkdir(path + '/' + 'Video')    
+                    os.mkdir(path + '/' + 'video')    
                     print( ' created.')
-                media.save(os.path.join(f'{path}/Video/', media.filename))   
+                media.save(os.path.join(f'{path}/video/', media.filename))   
 
                 print("Mp4 saved is Video folder")
 
@@ -498,12 +507,12 @@ def admin_edit_upload():
             elif types == "3":
                 print("Any type is supported")
                 media=request.files.get('file')
-                if os.path.isdir(path + '/' + 'Blog'): 
+                if os.path.isdir(path + '/' + 'other'): 
                     print(' exists.')
                 else:
-                    os.mkdir(path + '/' + 'Blog')    
+                    os.mkdir(path + '/' + 'other')    
                     print( ' created.')
-                media.save(os.path.join(f'{path}/Blog/', media.filename)) 
+                media.save(os.path.join(f'{path}/other/', media.filename)) 
                 print("Blog saved is Blog folder")
 
                 data = ({
@@ -751,23 +760,34 @@ def data():
 
         if file_ending == ".mp3":
             print("your type is correct ", '.mp3')
-            path1=f'{path}/Audio'+"/"+files
-           
-            return send_file(path1,as_attachment=True)
+            try:
 
+                path1=f'{path}/audio'+"/"+files
+                
+                return send_file(path1,as_attachment=True)
+            except:
+                return   "file not found"
         if file_ending == ".mp4":
             print("your type is correct ", '.mp4')
             
-            path1=f'{path}/Video'+"/"+files
-           
-            return send_file(path1,as_attachment=True)
+            try:
+                path1=f'{path}/video'+"/"+files
+            
+                return send_file(path1,as_attachment=True)
+            except:
+                return   "file not found"
         
        
         else:
-            path1=f'{path}/Blog'+"/"+files
-           
-            return send_file(path1,as_attachment=True)
+
+            try:
+                path1=f'{path}/other'+"/"+files
             
+                return send_file(path1,as_attachment=True)
+            
+            except:
+                return   "file not found"
+                
 
     return "file not found"
 
