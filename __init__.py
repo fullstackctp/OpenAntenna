@@ -815,7 +815,7 @@ def delete(id):
 
 # post*************
 
-@app.route('/post' , methods=['GET', 'POST'])
+@app.route('/api/posts' , methods=['GET', 'POST'])
 def post():
     if request.method=="GET":
         sql = text("SELECT * FROM posts;")
@@ -881,7 +881,7 @@ def post():
 
 # donations*************
 
-@app.route('/donation' , methods=['GET', 'POST'])
+@app.route('/api/donations' , methods=['GET', 'POST'])
 def donation():
     if request.method=="GET":
         sql = text("SELECT * FROM donation_methods;")
@@ -944,7 +944,7 @@ def donation():
 
 # settings*************
 
-@app.route('/setting' , methods=['GET', 'POST'])
+@app.route('/api/settings' , methods=['GET', 'POST'])
 def setting():
     if request.method=="GET":
 
@@ -1014,7 +1014,7 @@ def test():
         session_email = session['email']       
     return session_email
 
-@app.route('/user' , methods=['GET', 'POST'])
+@app.route('/api/users' , methods=['GET', 'POST'])
 def user():
 
 
